@@ -1,0 +1,97 @@
+version: "3"
+
+services:
+  nginx:
+    build:
+      dockerfile: ./nginx.dockerfile
+      context: .
+    image: erikjose1996/nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - production-network
+    depends_on:
+      - "api1"
+      - "api2"
+      - "api3"
+
+  api1:
+    build:
+      dockerfile: ./dockerfile
+      context: .
+    container_name: api1
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "3333"
+    networks:
+      - production-network
+    volumes:
+      - "./:/home/node/api"
+    depends_on:
+      - "db"
+
+  api2:
+    build:
+      dockerfile: ./dockerfile
+      context: .
+    container_name: api2
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "3333"
+    networks:
+      - production-network
+    volumes:
+      - "./:/home/node/api"
+    depends_on:
+      - "db"
+
+  api3:
+    build:
+      dockerfile: ./dockerfile
+      context: .
+    container_name: api3
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "3333"
+    networks:
+      - production-network
+    volumes:
+      - "./:/home/node/api"
+    depends_on:
+      - "db"
+
+  db:
+    image: postgres:10.11
+    container_name: db
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+      POSTGRES_DB: tsproject
+    ports:
+      - "5432:5432"
+    networks:
+      - production-network
+    volumes:
+      - production-db-data
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - production-network
+
+volumes:
+  production-db-data:
+
+networks:
+  production-network:
+    driver: bridge
